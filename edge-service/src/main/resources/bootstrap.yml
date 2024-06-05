@@ -34,7 +34,10 @@ spring:
     gateway:
       routes:
         - id: fusionweather
-          uri: lb://fusionweather
+          # 基于负载均衡的路由
+#          uri: lb://fusionweather
+          # 基于微服务地址端口路由
+          uri: ${fusionweather_address:http://127.0.0.1:10392}
           predicates:
             - Path=/**
 

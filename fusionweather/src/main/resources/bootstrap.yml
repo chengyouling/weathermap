@@ -1,6 +1,3 @@
-server:
-  port: 10392
-
 spring:
   application:
     name: fusionweather

@@ -1,27 +1,34 @@
 package com.service.fusionweather.controller;
 
-import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
-
 import com.service.fusionweather.entity.CurrentWeatherSummary;
 import com.service.fusionweather.entity.ForecastWeatherSummary;
 import com.service.fusionweather.entity.FusionWeatherSummary;
 
 import io.vertx.core.json.Json;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Locale;
+
 @Component
-public class FusionweatherImplDelegate {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FusionweatherImplDelegate.class);
+public class FusionweatherImplBootDelegate {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FusionweatherImplBootDelegate.class);
 
   @Autowired
   RestTemplate restTemplate;
+
+  @Value("${weather_address:http://127.0.0.1:13090}")
+  private String weatherAddress;
+
+  @Value("${forecast_address:http://127.0.0.1:13091}")
+  private String forecastAddress;
 
   public FusionWeatherSummary showFusionWeather(String city, String user) {
     FusionWeatherSummary summary = new FusionWeatherSummary();
@@ -34,7 +41,7 @@ public class FusionweatherImplDelegate {
   private CurrentWeatherSummary achieveCurrentWeatherSummary(String city, String user) {
     CurrentWeatherSummary su;
     try {
-      Object s = restTemplate.getForObject("http://weather/weather/show?city=" + city + "&user=" + user,
+      Object s = restTemplate.getForObject(weatherAddress + "/weather/show?city=" + city + "&user=" + user,
           Object.class, new Object());
       su = Json.decodeValue(Json.encode(s), CurrentWeatherSummary.class);
     } catch (Exception e) {
@@ -45,7 +52,7 @@ public class FusionweatherImplDelegate {
   }
 
   private ForecastWeatherSummary achieveForecastWeatherSummary(String city) {
-    final String url = "http://forecast/forecast/show?city=" + city;
+    final String url = forecastAddress + "/forecast/show?city=" + city;
     ForecastWeatherSummary su;
     try {
       Object s = restTemplate.getForObject(url, Object.class, new Object());
@@ -76,6 +83,6 @@ public class FusionweatherImplDelegate {
   }
 
   public String forecastError() {
-    return restTemplate.getForObject("http://forecast/forecast/forecastError", String.class);
+    return restTemplate.getForObject(forecastAddress + "/forecast/forecastError", String.class);
   }
 }
